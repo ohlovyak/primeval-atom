@@ -4,9 +4,10 @@ from panda3d.core import loadPrcFileData
 loadPrcFileData("", "win-size 1600 1200")
 loadPrcFileData("", "window-title The Primeval Atom")
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import AmbientLight, DirectionalLight, VBase4, Vec3, LColor, TextNode, Texture, PNMImage, LineSegs
+from panda3d.core import VBase4, Vec3, LColor, Texture, PNMImage, LineSegs, ClockObject
 from simulation_ui import SimulationUI
 
+globalClock = ClockObject.getGlobalClock();
 
 class BigBangSimulator(ShowBase):
     def __init__(self):

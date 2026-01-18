@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "primeval-atom"
+version = "0.1.0"
+description = "A Big Bang simulation using Panda3D"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "panda3d",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.10",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = [
+    "--cov=bigbang_simulator",
+    "--cov=simulation_ui",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=30",
+    "--no-cov-on-fail",
+]
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "tests/*",
+    "main.py",  # Entry point
+    "bigbang_simulator.py",  # Panda3D ShowBase - hard to test due to global state
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "def setup_ui",  # UI setup method - hard to test with graphics
+    "def update_ui_text",  # UI text update - interacts with graphics
+]

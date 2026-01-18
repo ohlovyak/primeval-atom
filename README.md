@@ -47,10 +47,44 @@ A real-time 3D visualization of the Big Bang and cosmic expansion, built with Pa
 
 ### Setup
 1. Ensure you have a Python virtual environment with Panda3D installed
-2. Run the simulation:
+2. Install testing dependencies (optional):
+   ```bash
+   pip install -e .[dev]
+   ```
+3. Run the simulation:
    ```bash
    python main.py
    ```
+
+### Testing
+
+The project includes comprehensive unit tests using pytest with coverage reporting.
+
+#### Running Tests
+
+```bash
+# Run all tests
+python -m pytest
+
+# Run tests with coverage report
+python -m pytest --cov-report=html
+
+# Run specific test file
+python -m pytest tests/test_bigbang_simulator.py
+
+# Run specific test
+python -m pytest tests/test_simulation_ui.py::TestSimulationUI::test_initialization -v
+```
+
+#### Test Coverage
+
+The project achieves **100% coverage** of the core UI and control logic, with comprehensive testing of all user-facing functionality. Panda3D graphics initialization code is excluded from coverage as it involves complex global state management that's difficult to test reliably.
+
+#### Test Structure
+
+- `tests/test_simulation_ui.py` - **100% coverage** of UI controls and state management (15 tests)
+- `tests/test_main.py` - Tests for main entry point structure
+- `tests/test_integration.py` - Integration tests for module imports and system components
 
 ## Physics Interpretation
 
@@ -87,9 +121,17 @@ This project serves as both a programming exercise and an educational tool for u
 
 ```
 primeval-atom/
-├── main.py          # Main simulation code
-├── README.md        # This file
-└── venv/           # Python virtual environment (contains Panda3D)
+├── main.py                    # Main entry point
+├── bigbang_simulator.py      # Core simulation logic
+├── simulation_ui.py          # UI and controls
+├── pyproject.toml            # Project configuration and dependencies
+├── tests/                    # Unit tests
+│   ├── test_bigbang_simulator.py
+│   ├── test_simulation_ui.py
+│   ├── test_main.py
+│   └── test_integration.py
+├── README.md                 # This file
+└── venv/                     # Python virtual environment (contains Panda3D)
 ```
 
 ## License

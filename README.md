@@ -56,6 +56,28 @@ A real-time 3D visualization of the Big Bang and cosmic expansion, built with Pa
    python main.py
    ```
 
+### Building Executables
+
+The project includes automated build workflows to create standalone executables.
+
+#### Local Build
+To build an executable locally for testing:
+```bash
+python build_executable.py
+```
+
+This will create a standalone executable in the `dist/` directory.
+
+#### Automated Builds
+- **Release Builds**: Automatic builds trigger on GitHub release creation
+- **Manual Builds**: Use the "Build Executable" workflow in GitHub Actions
+- **Multi-platform**: Supports Windows, Linux, and macOS
+
+#### Release Artifacts
+When you create a GitHub release, the following artifacts are automatically built:
+- `PrimevalAtom-Windows.zip` - Windows executable
+- `PrimevalAtom-Linux.tar.gz` - Linux executable
+
 ### Testing
 
 The project includes comprehensive unit tests using pytest with coverage reporting.
@@ -124,12 +146,18 @@ primeval-atom/
 ├── main.py                    # Main entry point
 ├── bigbang_simulator.py      # Core simulation logic
 ├── simulation_ui.py          # UI and controls
+├── build_executable.py       # Local build script for executables
+├── requirements.txt          # Python dependencies
 ├── pyproject.toml            # Project configuration and dependencies
+├── .github/workflows/        # GitHub Actions workflows
+│   ├── build-release.yml     # Automated release builds
+│   ├── build-executable.yml  # Manual executable builds
+│   └── python-app.yml        # CI/CD pipeline
 ├── tests/                    # Unit tests
-│   ├── test_bigbang_simulator.py
 │   ├── test_simulation_ui.py
 │   ├── test_main.py
 │   └── test_integration.py
+├── dist/                     # Built executables (generated)
 ├── README.md                 # This file
 └── venv/                     # Python virtual environment (contains Panda3D)
 ```

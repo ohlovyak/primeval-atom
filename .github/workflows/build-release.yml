@@ -1,0 +1,272 @@
+name: Build and Release Executable
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (optional)'
+        required: false
+        default: 'dev'
+
+env:
+  PYTHON_VERSION: '3.13'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install panda3d
+        pip install pyinstaller
+
+    - name: Install project dependencies
+      run: |
+        pip install -e .
+
+    - name: Run tests
+      run: |
+        python -m pytest --tb=short
+
+    - name: Create executable with PyInstaller
+      run: |
+        # Create a spec file for better control over the build
+        cat > primeval-atom.spec << EOF
+# -*- mode: python ; coding: utf-8 -*-
+
+import os
+import sys
+
+block_cipher = None
+
+a = Analysis(
+    ['main.py'],
+    pathex=[],
+    binaries=[],
+    datas=[
+        # Add any additional data files here if needed
+        # ('path/to/data', 'destination/folder'),
+    ],
+    hiddenimports=[
+        'panda3d.core',
+        'panda3d.physics',
+        'panda3d.fx',
+        'panda3d.direct',
+        'direct.showbase.ShowBase',
+        'direct.gui.OnscreenText',
+        'direct.task.Task',
+        'direct.task.TaskManagerGlobal',
+        'direct.interval.IntervalGlobal',
+        'direct.particles.ParticleManagerGlobal',
+        'direct.showbase.PhysicsManagerGlobal',
+        'direct.showbase.AudioManagerGlobal',
+        'direct.showbase.Loader',
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[
+        'tkinter',
+        'unittest',
+        'pdb',
+        'pydoc',
+        'doctest',
+        'test',
+        'tests',
+        'pytest',
+        'coverage',
+        'setuptools',
+        'pip',
+        'wheel',
+        'distutils',
+    ],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name='PrimevalAtom',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=True,  # Set to False for windowed app (no console)
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon=None,  # Add icon if available: 'icon.ico'
+)
+EOF
+
+        # Build the executable
+        python -m PyInstaller --clean --noconfirm primeval-atom.spec
+
+    - name: Create distribution archive
+      run: |
+        # Create a zip file with the executable and any required files
+        cd dist
+        Compress-Archive -Path "PrimevalAtom" -DestinationPath "../PrimevalAtom-Windows.zip"
+        cd ..
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./PrimevalAtom-Windows.zip
+        asset_name: PrimevalAtom-Windows.zip
+        asset_content_type: application/zip
+
+  build-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-glx libgl1-mesa-dri libxcb-xfixes0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install panda3d
+        pip install pyinstaller
+
+    - name: Install project dependencies
+      run: |
+        pip install -e .
+
+    - name: Create executable with PyInstaller
+      run: |
+        # Create spec file for Linux
+        cat > primeval-atom.spec << EOF
+# -*- mode: python ; coding: utf-8 -*-
+
+import os
+import sys
+
+block_cipher = None
+
+a = Analysis(
+    ['main.py'],
+    pathex=[],
+    binaries=[],
+    datas=[],
+    hiddenimports=[
+        'panda3d.core',
+        'panda3d.physics',
+        'panda3d.fx',
+        'panda3d.direct',
+        'direct.showbase.ShowBase',
+        'direct.gui.OnscreenText',
+        'direct.task.Task',
+        'direct.task.TaskManagerGlobal',
+        'direct.interval.IntervalGlobal',
+        'direct.particles.ParticleManagerGlobal',
+        'direct.showbase.PhysicsManagerGlobal',
+        'direct.showbase.AudioManagerGlobal',
+        'direct.showbase.Loader',
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[
+        'tkinter',
+        'unittest',
+        'pdb',
+        'pydoc',
+        'doctest',
+        'test',
+        'tests',
+        'pytest',
+        'coverage',
+        'setuptools',
+        'pip',
+        'wheel',
+        'distutils',
+    ],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name='PrimevalAtom',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=True,  # Set to False for windowed app
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon=None,
+)
+EOF
+
+        # Build the executable
+        python -m PyInstaller --clean --noconfirm primeval-atom.spec
+
+    - name: Create distribution archive
+      run: |
+        cd dist
+        tar -czf ../PrimevalAtom-Linux.tar.gz PrimevalAtom
+        cd ..
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./PrimevalAtom-Linux.tar.gz
+        asset_name: PrimevalAtom-Linux.tar.gz
+        asset_content_type: application/gzip

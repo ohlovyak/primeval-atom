@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov panda3d
+        pip install flake8 pytest pytest-cov panda3d pyinstaller
 
     - name: Run tests
       run: |
@@ -77,7 +77,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov panda3d
+        pip install flake8 pytest pytest-cov panda3d pyinstaller
 
     - name: Build executable
       run: |

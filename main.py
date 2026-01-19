@@ -6,14 +6,17 @@ def configure_panda3d():
     """Configure Panda3D for proper execution in bundled mode."""
     # Set graphics backend based on platform
     if sys.platform.startswith('win'):
-        # Windows - prefer OpenGL
+        # Windows - prefer OpenGL, fallback to DirectX
         os.environ.setdefault('PANDA_WIN32API', 'wgl')
+        os.environ.setdefault('load-display', 'pandagl')
     elif sys.platform.startswith('linux'):
         # Linux - use OpenGL
         os.environ.setdefault('PANDA_LINUXAPI', 'glx')
+        os.environ.setdefault('load-display', 'pandagl')
     elif sys.platform.startswith('darwin'):
         # macOS - use OpenGL
         os.environ.setdefault('PANDA_OSXAPI', 'cocoa')
+        os.environ.setdefault('load-display', 'pandagl')
 
     # Force window type
     os.environ.setdefault('window-type', 'onscreen')
@@ -45,4 +48,17 @@ if __name__ == "__main__":
         print(f"Error starting application: {e}")
         import traceback
         traceback.print_exc()
-        input("Press Enter to exit...")  # Keep console open on Windows
+
+        # Try to keep console open, but handle cases where stdin is not available
+        try:
+            input("Press Enter to exit...")  # Keep console open on Windows
+        except (EOFError, RuntimeError):
+            # stdin not available (e.g., in bundled executable or headless environment)
+            print("Press any key to exit...")
+            try:
+                import msvcrt
+                msvcrt.getch()  # Windows-specific way to wait for keypress
+            except ImportError:
+                # Not on Windows, just wait a bit
+                import time
+                time.sleep(5)

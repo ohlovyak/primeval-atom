@@ -3,6 +3,7 @@ import math
 from panda3d.core import loadPrcFileData
 loadPrcFileData("", "win-size 1600 1200")
 loadPrcFileData("", "window-title The Primeval Atom")
+loadPrcFileData("", "load-display pandagl")  # Explicitly load OpenGL display
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import VBase4, Vec3, LColor, Texture, PNMImage, LineSegs, ClockObject
 from simulation_ui import SimulationUI
@@ -11,7 +12,11 @@ globalClock = ClockObject.getGlobalClock();
 
 class BigBangSimulator(ShowBase):
     def __init__(self):
-        ShowBase.__init__(self)
+        try:
+            ShowBase.__init__(self)
+        except Exception as e:
+            raise RuntimeError(f"Failed to initialize graphics: {e}. "
+                             "Make sure you have proper graphics drivers installed and a display available.")
         self.setBackgroundColor(0, 0, 0)  # Black background
         self.disableMouse()  # Disable default camera control
 

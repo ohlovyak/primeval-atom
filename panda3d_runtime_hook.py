@@ -28,12 +28,15 @@ def setup_panda3d_config():
     if sys.platform.startswith('win'):
         # Windows - try DirectX first, then OpenGL
         os.environ.setdefault('PANDA_WIN32API', 'wgl')
+        os.environ.setdefault('load-display', 'pandagl')
     elif sys.platform.startswith('linux'):
         # Linux - use OpenGL
         os.environ.setdefault('PANDA_LINUXAPI', 'glx')
+        os.environ.setdefault('load-display', 'pandagl')
     elif sys.platform.startswith('darwin'):
         # macOS - use OpenGL
         os.environ.setdefault('PANDA_OSXAPI', 'cocoa')
+        os.environ.setdefault('load-display', 'pandagl')
 
     # Force window type to be onscreen
     os.environ.setdefault('window-type', 'onscreen')

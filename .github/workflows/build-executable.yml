@@ -43,10 +43,10 @@ jobs:
 
     - name: Create executable
       run: |
-        python -m PyInstaller --onefile --windowed --name PrimevalAtom main.py
+        python -m PyInstaller --onedir --windowed --name PrimevalAtom --collect-all panda3d --collect-all direct --runtime-hook=panda3d_runtime_hook.py --exclude-module=tkinter --exclude-module=unittest --exclude-module=tests --exclude-module=pytest --exclude-module=coverage --clean main.py
 
     - name: Upload executable artifact
       uses: actions/upload-artifact@v4
       with:
         name: PrimevalAtom-${{ runner.os }}
-        path: dist/PrimevalAtom${{ runner.os == 'Windows' && '.exe' || '' }}
+        path: dist/PrimevalAtom/

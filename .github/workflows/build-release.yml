@@ -55,7 +55,7 @@ jobs:
 
   upload-release-assets:
     if: github.event_name == 'release'
-    needs: [build-windows, build-ubuntu, build-macos]
+    needs: [build-windows]
     runs-on: ubuntu-latest
     steps:
     - name: Download Windows artifact
@@ -63,22 +63,10 @@ jobs:
       with:
         name: PrimevalAtom-Windows
 
-    - name: Download Linux artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: PrimevalAtom-Linux
-
-    - name: Download macOS artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: PrimevalAtom-macOS
-
     - name: Upload release assets
       uses: softprops/action-gh-release@v2
       with:
         files: |
           PrimevalAtom-Windows.zip
-          PrimevalAtom-Linux.tar.gz
-          PrimevalAtom-macOS.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
